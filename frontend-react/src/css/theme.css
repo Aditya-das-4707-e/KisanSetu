@@ -1,0 +1,115 @@
+/* =========================================================
+   KisanSetu — Design Tokens
+   A market-ledger aesthetic: forest green + mustard-field
+   accent, warm paper background, tabular mono for prices
+   (the way a real mandi price board sets its numbers).
+   ========================================================= */
+
+:root {
+  /* Color */
+  --bg: #F6F4EC;
+  --bg-alt: #FFFFFF;
+  --bg-sunk: #EFEBDD;
+  --ink: #211D16;
+  --ink-muted: #6B6355;
+  --ink-faint: #9B9484;
+  --border: #E1DCC9;
+  --border-strong: #C9C2AA;
+
+  --green-900: #12331F;
+  --green-700: #1F5C3F;
+  --green-600: #276F4B;
+  --green-100: #E3EDE3;
+
+  --mustard-700: #A97624;
+  --mustard-600: #C68B2C;
+  --mustard-500: #D9A441;
+  --mustard-100: #F6E9CC;
+
+  --rust-700: #7E2C22;
+  --rust-600: #A63A2C;
+  --rust-100: #F3DFD9;
+
+  --rise: var(--green-700);
+  --fall: var(--rust-600);
+  --stable: #8A8574;
+
+  --focus-ring: #2B6BAE;
+
+  /* Type */
+  --font-display: "Fraunces", "Noto Sans Devanagari", "Noto Sans Bengali", "Georgia", serif;
+  --font-body: "IBM Plex Sans", "Noto Sans Devanagari", "Noto Sans Bengali", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Noto Sans Devanagari", "Noto Sans Bengali", "SFMono-Regular", Consolas, monospace;
+
+  /* Spacing scale */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+  --sp-9: 96px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 1px 2px rgba(33, 29, 22, 0.06), 0 6px 20px rgba(33, 29, 22, 0.06);
+
+  --container: 1180px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--green-900);
+  line-height: 1.15;
+  margin: 0 0 var(--sp-3);
+  font-weight: 600;
+}
+
+h1 { font-size: clamp(2rem, 4vw, 3.1rem); }
+h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); }
+h3 { font-size: 1.3rem; }
+
+p { margin: 0 0 var(--sp-3); color: var(--ink); }
+.muted { color: var(--ink-muted); }
+
+a { color: var(--green-700); }
+
+/* Prices are set in tabular mono, like a mandi board */
+.price, .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.container {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--sp-5);
+}
+
+@media (max-width: 640px) {
+  .container { padding: 0 var(--sp-4); }
+}
