@@ -1,55 +1,90 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { getAllPrices } from "../lib/api.js";
+import { getAllPrices, getLocations } from "../lib/api.js";
 import { useLang } from "../lib/i18n.jsx";
 import { TrendIcon } from "../components/bits.jsx";
 
 export default function Market() {
   const { t, cropName, cropLocal, categoryName, unitName } = useLang();
-  const [params] = useSearchParams();
+  const [params, setSearchParams] = useSearchParams();
+  /** Read a query param straight from the URL — doesn't depend on useSearchParams. */
+  function readP(name) {
+    try {
+      return new URLSearchParams(window.location.search).get(name) || "";
+    } catch {
+      return "";
+    }
+  }
+  /**
+   * Initial active state:
+   *  - explicit `state` query param ("" = All India) if present;
+   *  - otherwise the saved location's state (near-me default);
+   *  - otherwise All India.
+   */
+  function initStateSel() {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.has("state")) return sp.get("state") || "";
+    } catch {
+      /* fall through */
+    }
+    try {
+      const loc = JSON.parse(localStorage.getItem("kisansetu_location") || "null");
+      return (loc && loc.state) || "";
+    } catch {
+      return "";
+    }
+  }
   const [allPrices, setAllPrices] = useState([]);
-  const [q, setQ] = useState(params.get("q") || "");
-  const [category, setCategory] = useState("");
-  const [sort, setSort] = useState("name");
+  const [q, setQ] = useState(readP("q"));
+  const [stateSel, setStateSel] = useState(initStateSel());
+  const [states, setStates] = useState([]);
 
   useEffect(() => {
-    getAllPrices().then(setAllPrices);
+    getLocations().then((l) => setStates(Object.keys(l)));
   }, []);
 
   useEffect(() => {
-    setQ(params.get("q") || "");
+    getAllPrices(stateSel).then(setAllPrices);
+  }, [stateSel]);
+
+  useEffect(() => {
+    setQ(readP("q"));
   }, [params]);
 
-  const categories = useMemo(
-    () => [...new Set(allPrices.map((p) => p.crop.category))],
-    [allPrices]
-  );
+  function changeState(s) {
+    if (s === stateSel) return;
+    const next = new URLSearchParams(params.toString());
+    // Always write the state key (even "" for All India) so the choice is sticky.
+    next.set("state", s);
+    setStateSel(s);
+    setSearchParams(next);
+  }
 
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase();
     const filtered = allPrices.filter(
       ({ crop }) =>
-        (!needle ||
-          crop.name.toLowerCase().includes(needle) ||
-          crop.local.toLowerCase().includes(needle) ||
-          cropName(crop).toLowerCase().includes(needle) ||
-          cropLocal(crop).toLowerCase().includes(needle)) &&
-        (!category || crop.category === category)
+        !needle ||
+        crop.name.toLowerCase().includes(needle) ||
+        crop.local.toLowerCase().includes(needle) ||
+        cropName(crop).toLowerCase().includes(needle) ||
+        cropLocal(crop).toLowerCase().includes(needle)
     );
-    const sorted = [...filtered];
-    if (sort === "name") sorted.sort((a, b) => cropName(a.crop).localeCompare(cropName(b.crop)));
-    if (sort === "price_low") sorted.sort((a, b) => a.price.modal - b.price.modal);
-    if (sort === "price_high") sorted.sort((a, b) => b.price.modal - a.price.modal);
-    if (sort === "trend")
-      sorted.sort((a, b) => Math.abs(b.price.trendPct) - Math.abs(a.price.trendPct));
-    return sorted;
-  }, [allPrices, q, category, sort, cropName, cropLocal]);
+    return [...filtered].sort((a, b) => cropName(a.crop).localeCompare(cropName(b.crop)));
+  }, [allPrices, q, cropName, cropLocal]);
 
   return (
     <main id="main" className="section-tight">
       <div className="container">
         <h1>{t("mkt.title")}</h1>
-        <p className="muted">{t("mkt.sub")}</p>
+        <p className="muted" id="mktStatus">
+          {allPrices.length
+            ? (stateSel
+                ? t("mkt.showingState", { state: stateSel })
+                : t("mkt.showingIndia"))
+            : t("c.loading")}
+        </p>
 
         <div className="filters">
           <div className="field">
@@ -63,30 +98,25 @@ export default function Market() {
             />
           </div>
           <div className="field">
-            <label htmlFor="mCategory">{t("mkt.cat")}</label>
-            <select id="mCategory" value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option value="">{t("mkt.allCat")}</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {categoryName(c)}
+            <label htmlFor="mState">{t("mkt.state")}</label>
+            <select id="mState" value={stateSel} onChange={(e) => changeState(e.target.value)}>
+              <option value="">{t("mkt.allIndia")}</option>
+              {states.map((s) => (
+                <option key={s} value={s}>
+                  {s}
                 </option>
               ))}
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor="mSort">{t("mkt.sort")}</label>
-            <select id="mSort" value={sort} onChange={(e) => setSort(e.target.value)}>
-              <option value="name">{t("mkt.name")}</option>
-              <option value="price_low">{t("mkt.lowHigh")}</option>
-              <option value="price_high">{t("mkt.highLow")}</option>
-              <option value="trend">{t("mkt.trend")}</option>
             </select>
           </div>
         </div>
 
         <div className="grid grid-3" id="cropGrid">
           {list.map(({ crop, price }) => (
-            <Link key={crop.id} className="crop-card" to={`/crop?crop=${crop.id}`}>
+            <Link
+              key={crop.id}
+              className="crop-card"
+              to={`/crop?crop=${crop.id}${stateSel ? `&state=${encodeURIComponent(stateSel)}` : ""}`}
+            >
               <div className="name">{cropName(crop)}</div>
               <div className="local">
                 {cropLocal(crop)} · {categoryName(crop.category)}
@@ -105,6 +135,7 @@ export default function Market() {
                       ? t("time.mAgo", { n: price.updatedMinsAgo })
                       : t("time.hAgo", { n: Math.round(price.updatedMinsAgo / 60) }),
                 })}
+                {price.live && price.source ? ` · ${price.source}` : ""}
               </div>
             </Link>
           ))}

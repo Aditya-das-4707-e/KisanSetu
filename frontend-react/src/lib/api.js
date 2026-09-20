@@ -20,6 +20,124 @@ function delay(ms = 120) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/* =====================================================================
+   Live Market Price API — "Indian Market Price" (FastAPI)
+   ---------------------------------------------------------------------
+   The market pages are now backed by a real price service. Calls go to a
+   same-origin route `/api/market` — proxied to the hosted FastAPI app by
+   the Vite dev server (vite.config.js `server.proxy`) and, in production,
+   by the Vercel function `api/market.js`. This avoids the Render API's
+   CORS restrictions so the browser can read live data directly.
+
+   The upstream base can still be overridden at build/dev time with the
+   VITE_MARKET_API_BASE env var when you need to point elsewhere (e.g.
+   http://127.0.0.1:8000 to hit a local backend).
+
+   Every lookup is wrapped so that if the API is unreachable (offline,
+   render cold-start, proxy down, 404 for a non-mandi crop) we transparently
+   fall back to the demo MOCK data — the app never breaks and no page
+   needs to know which source answered. Flip USE_LIVE_MARKET_API to
+   false to force pure demo mode.
+   ===================================================================== */
+const MARKET_API_BASE =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env &&
+    import.meta.env.VITE_MARKET_API_BASE) ||
+  "/api/market";
+
+const USE_LIVE_MARKET_API = true;
+const MARKET_CACHE_TTL_MS = 10 * 60 * 1000; // client-side reuse window
+const marketCache = new Map();
+
+/** Current state (from the saved location), used for the live ?state= filter. */
+function currentState() {
+  try {
+    const loc = JSON.parse(localStorage.getItem("kisansetu_location") || "null");
+    return (loc && loc.state) || "";
+  } catch {
+    return "";
+  }
+}
+
+function marketCacheKey(name, state, live) {
+  return `${(name || "").trim().toLowerCase()}|${(state || "").trim().toLowerCase()}|${live ? 1 : 0}`;
+}
+
+function marketCacheGet(name, state, live) {
+  const k = marketCacheKey(name, state, live);
+  const hit = marketCache.get(k);
+  if (hit && Date.now() - hit.t < MARKET_CACHE_TTL_MS) return hit.v;
+  if (hit) marketCache.delete(k);
+  return undefined;
+}
+
+function marketCacheSet(name, state, live, value) {
+  marketCache.set(marketCacheKey(name, state, live), { t: Date.now(), v: value });
+}
+
+/**
+ * GET /products/?name=… (+ optional state/live) and return the first
+ * ProductPrice object, or null when nothing matches / call fails.
+ */
+async function fetchBackendPrice(name, { state = "", live = true } = {}) {
+  if (!USE_LIVE_MARKET_API) return null;
+  const cached = marketCacheGet(name, state, live);
+  if (cached !== undefined) return cached;
+  const params = new URLSearchParams({ name });
+  if (state) params.set("state", state);
+  if (!live) params.set("live", "false");
+  let item = null;
+  try {
+    const res = await fetch(`${MARKET_API_BASE}/products/?${params.toString()}`);
+    if (res.ok) {
+      const data = await res.json();
+      item = Array.isArray(data) && data.length ? data[0] : null;
+    }
+  } catch {
+    item = null; // offline / cold-start / CORS — caller falls back to mock
+  }
+  marketCacheSet(name, state, live, item);
+  return item;
+}
+
+/** Live lookup that retries without the state filter if the state scope was empty. */
+async function fetchBackendPriceBest(name, state) {
+  if (!state) return fetchBackendPrice(name, { state: "" });
+  const scoped = await fetchBackendPrice(name, { state });
+  return scoped || fetchBackendPrice(name, { state: "" });
+}
+
+/** Map a backend ProductPrice onto the shape the existing pages already use. */
+function liveToPrice(live, mock) {
+  const modal = Number(live.market_price_per_kg);
+  const unit = live.unit || "kg";
+  return {
+    min: live.min_price_per_kg != null ? Number(live.min_price_per_kg) : modal,
+    max: live.max_price_per_kg != null ? Number(live.max_price_per_kg) : modal,
+    modal,
+    unit,
+    market:
+      live.matched_commodity
+        ? `${live.matched_commodity} · Mandi`
+        : mock ? mock.market : "Wholesale Mandi",
+    state: mock ? mock.state : "",
+    district: mock ? mock.district : "",
+    source:
+      live.source === "live"
+        ? "Live · Agmarknet"
+        : live.source === "cache"
+          ? "Agmarknet · cached"
+          : "Static",
+    updatedMinsAgo: mock ? mock.updatedMinsAgo : 0,
+    trendPct: mock ? mock.trendPct : 0,
+    trendDir: mock ? mock.trendDir : "stable",
+    live: true,
+    arrivalDate: live.arrival_date,
+    marketsCount: live.markets_count,
+    matchedCommodity: live.matched_commodity,
+  };
+}
+
 export async function getAllCrops() {
   await delay();
   return MOCK_CROPS;
@@ -43,24 +161,53 @@ export async function getCropById(cropId) {
   return MOCK_CROPS.find((c) => c.id === cropId) || null;
 }
 
-export async function getCropPrice(cropId) {
+export async function getCropPrice(cropId, state) {
+  const crop = MOCK_CROPS.find((c) => c.id === cropId);
+  if (USE_LIVE_MARKET_API && crop) {
+    // Use the passed state as-is ("" = All India). Only fall back to the saved
+    // location's state when no state was provided at all (undefined).
+    const st = state !== undefined ? state : currentState();
+    const live = await fetchBackendPriceBest(crop.name, st);
+    // No hardcoded fallback: if the live API has no entry, report it as missing
+    // rather than showing a fake demo price.
+    if (live) return { cropId, ...liveToPrice(live, MOCK_MARKET_PRICES[cropId]) };
+    return null;
+  }
   await delay();
-  const price = MOCK_MARKET_PRICES[cropId];
-  if (!price) return null;
-  return { cropId, ...price };
+  const mock = MOCK_MARKET_PRICES[cropId];
+  return mock ? { cropId, ...mock } : null;
 }
 
-export async function getAllPrices() {
+export async function getAllPrices(state) {
+  const st = state !== undefined ? state : currentState();
+  if (USE_LIVE_MARKET_API) {
+    const rows = await Promise.all(
+      MOCK_CROPS.map(async (c) => {
+        const mock = MOCK_MARKET_PRICES[c.id];
+        const live = await fetchBackendPriceBest(c.name, st);
+        return live ? { crop: c, price: liveToPrice(live, mock) } : null;
+      })
+    );
+    return rows.filter((r) => r && r.price);
+  }
   await delay();
   return MOCK_CROPS.map((c) => ({ crop: c, price: MOCK_MARKET_PRICES[c.id] })).filter(
     (p) => p.price
   );
 }
 
-export async function getPriceHistory(cropId, rangeDays = 30) {
-  await delay(150);
+export async function getPriceHistory(cropId, rangeDays = 30, state) {
   const full = MOCK_PRICE_HISTORY[cropId] || [];
-  return full.slice(Math.max(0, full.length - rangeDays));
+  await delay(40);
+  // Anchor the demo history to the current (possibly live) modal price so the
+  // chart and the price card always tell the same story.
+  const mockBase = MOCK_MARKET_PRICES[cropId]?.modal || 1;
+  const live = await getCropPrice(cropId, state);
+  const base = (live && live.modal) || mockBase;
+  const ratio = base / mockBase;
+  const scaled =
+    ratio === 1 ? full : full.map((p) => ({ ...p, price: Math.round(p.price * ratio * 100) / 100 }));
+  return scaled.slice(Math.max(0, scaled.length - rangeDays));
 }
 
 export async function getNearbyFarmers(cropId, filters = {}) {

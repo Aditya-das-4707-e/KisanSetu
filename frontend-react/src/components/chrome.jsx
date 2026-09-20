@@ -66,7 +66,6 @@ export function Navbar({ location, onOpenLocation }) {
 
   return (
     <>
-      <div className="demo-banner">{t("nav.banner")}</div>
       <nav className="nav">
         <div className="nav-inner">
           <Link className="brand" to="/">
@@ -103,8 +102,8 @@ export function Navbar({ location, onOpenLocation }) {
             <i className="bi bi-geo-alt" aria-hidden="true"></i> {location.locality},{" "}
             {location.district}
           </button>
-          <Link to="/login" className="btn btn-outline btn-sm" id="navAuthBtn">
-            {t("nav.login")}
+          <Link to="/dashboard-farmer" className="btn btn-outline btn-sm" id="navAuthBtn">
+            {t("nav.dashboard")}
           </Link>
           <button
             className="nav-toggle"
@@ -140,8 +139,8 @@ export function Navbar({ location, onOpenLocation }) {
                 <i className="bi bi-geo-alt" aria-hidden="true"></i> {location.locality},{" "}
                 {location.district}
               </button>
-              <Link to="/login" className="btn btn-outline btn-sm">
-                {t("nav.login")}
+              <Link to="/dashboard-farmer" className="btn btn-outline btn-sm">
+                {t("nav.dashboard")}
               </Link>
             </div>
           </div>
@@ -196,12 +195,7 @@ export function Footer() {
           <Link to="/market">{t("nav.market")}</Link>
           <Link to="/farmers">{t("nav.farmers")}</Link>
           <Link to="/alerts">{t("foot.priceAlerts")}</Link>
-        </div>
-        <div>
-          <h4>{t("foot.account")}</h4>
-          <Link to="/login">{t("foot.login")}</Link>
-          <Link to="/register">{t("foot.register")}</Link>
-          <Link to="/profile">{t("foot.profile")}</Link>
+          <Link to="/dashboard-farmer">{t("nav.dashboard")}</Link>
         </div>
         <div>
           <h4>{t("foot.about")}</h4>

@@ -24,9 +24,7 @@ Internet is needed for CDNs (Bootstrap Icons, Google Fonts), same as the static 
 | `/farmers` | farmer listings |
 | `/dashboard-farmer` | farmer dashboard |
 | `/alerts` | `alerts.html` |
-| `/login`, `/register` | demo auth |
-| `/profile` | editable profile |
-| `*` | `404.html` |
+| `*` | `404.html` | (`/login`, `/register`, `/profile` redirect to `/` — auth removed) |
 
 ## Structure
 

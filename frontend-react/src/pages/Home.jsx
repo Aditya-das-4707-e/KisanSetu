@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router-dom";
-import { getAllPrices, detectLocation, saveLocation } from "../lib/api.js";
+import { getAllPrices, getLocations, detectLocation, saveLocation } from "../lib/api.js";
 import { useLang } from "../lib/i18n.jsx";
 import { TrendIcon } from "../components/bits.jsx";
 
@@ -18,8 +18,19 @@ export default function Home() {
   const navigate = useNavigate();
   const [hero, setHero] = useState("");
   const [trending, setTrending] = useState([]);
+  // Optional state filter for the hero search — empty means "All India".
+  const [stateSel, setStateSel] = useState("");
+  const [states, setStates] = useState([]);
   // locBox: { kind: 'detecting' } | { kind: 'saved', loc } | { kind: 'denied' } | { kind: 'unavailable' }
   const [locBox, setLocBox] = useState({ kind: "detecting" });
+
+  useEffect(() => {
+    getLocations().then((l) => {
+      setStates(Object.keys(l));
+      const saved = readSavedLocationRaw();
+      setStateSel((saved && saved.state) || "");
+    });
+  }, []);
 
   useEffect(() => {
     getAllPrices().then((all) => {
@@ -70,7 +81,10 @@ export default function Home() {
   function submitSearch(e) {
     e.preventDefault();
     const v = hero.trim();
-    if (v) navigate(`/market?q=${encodeURIComponent(v)}`);
+    if (!v) return;
+    // Always carry the state choice, including "All India" (= empty), so the
+    // market page uses exactly what the user picked instead of the saved location.
+    navigate(`/market?q=${encodeURIComponent(v)}&state=${encodeURIComponent(stateSel)}`);
   }
 
   return (
@@ -145,6 +159,19 @@ export default function Home() {
               value={hero}
               onChange={(e) => setHero(e.target.value)}
             />
+            <select
+              id="heroState"
+              aria-label={t("home.stateLbl")}
+              value={stateSel}
+              onChange={(e) => setStateSel(e.target.value)}
+            >
+              <option value="">{t("home.allIndia")}</option>
+              {states.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
             <button type="submit" className="btn btn-primary">
               {t("home.search")}
             </button>
