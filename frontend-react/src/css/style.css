@@ -110,24 +110,56 @@
   .nav-inner > .nav-links,
   .nav-inner > .nav-loc { display: none; }
   .nav-toggle { display: inline-flex; }
+  .nav-toggle[aria-expanded="true"] { border-color: var(--green-700); color: var(--green-700); }
   .nav-search { display: block; order: 10; flex: 1 1 100%; max-width: none; }
   .nav-menu {
     display: flex;
     flex-direction: column;
-    gap: 4px;
     border-top: 1px solid var(--border);
     padding: 8px var(--sp-4) var(--sp-4);
     background: var(--bg-alt);
+    animation: navMenuSlide 0.18s ease-out;
+  }
+  .nav-menu-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 4px 4px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--green-900);
+  }
+  .nav-menu-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--ink);
+    font-size: 1.15rem;
+    cursor: pointer;
   }
   .nav-menu a.nav-menu-link {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     text-decoration: none;
     color: var(--ink);
     font-weight: 600;
-    padding: 12px 4px;
+    font-size: 1rem;
+    padding: 14px 4px;
     border-bottom: 1px solid var(--border);
   }
   .nav-menu a.nav-menu-link:hover { color: var(--green-700); }
+  .nav-menu a.nav-menu-link .bi-chevron-right {
+    margin-left: auto;
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+  }
   .nav-menu-row {
     display: flex;
     flex-wrap: wrap;
@@ -508,4 +540,36 @@ table.data tr:last-child td { border-bottom: none; }
   table.data { font-size: 0.85rem; }
   table.data th, table.data td { padding: 10px 8px; }
   .dash-head { padding: var(--sp-5) 0; }
+
+  /* Footer stacks cleanly instead of squeezing into columns */
+  .footer-inner { flex-direction: column; gap: var(--sp-5); }
+  .footer-bottom { flex-direction: column; gap: 4px; text-align: center; }
+}
+
+/* ---------- Home quick-action cards ---------- */
+.quick-card { text-decoration: none; color: inherit; }
+.quick-card .qc-icon { font-size: 1.6rem; margin-bottom: 8px; }
+.quick-card h3 { margin-bottom: 4px; font-size: 1.05rem; }
+
+@media (max-width: 900px) {
+  /* Third card spans full width below the first two */
+  .quick-cards > :last-child {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 420px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Two compact cards side-by-side on phones */
+  .quick-cards { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .quick-card { padding: 14px; }
+  .quick-card .qc-icon { font-size: 1.3rem; margin-bottom: 6px; }
+  .quick-card h3 { font-size: 0.92rem; }
+}
+
+@keyframes navMenuSlide {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }

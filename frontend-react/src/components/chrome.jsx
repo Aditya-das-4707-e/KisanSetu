@@ -118,14 +118,30 @@ export function Navbar({ location, onOpenLocation }) {
         </div>
         {menuOpen && (
           <div className="nav-menu" id="mobileNavMenu">
+            <div className="nav-menu-head">
+              <span>{t("nav.menu")}</span>
+              <button
+                className="nav-menu-close"
+                onClick={() => setMenuOpen(false)}
+                aria-label={t("nav.close")}
+              >
+                <i className="bi bi-x-lg" aria-hidden="true"></i>
+              </button>
+            </div>
             <Link className="nav-menu-link" to="/market">
+              <i className="bi bi-bar-chart-line" aria-hidden="true"></i>
               {t("nav.market")}
+              <i className="bi bi-chevron-right" aria-hidden="true"></i>
             </Link>
             <Link className="nav-menu-link" to="/farmers">
+              <i className="bi bi-people" aria-hidden="true"></i>
               {t("nav.farmers")}
+              <i className="bi bi-chevron-right" aria-hidden="true"></i>
             </Link>
             <Link className="nav-menu-link" to="/alerts">
+              <i className="bi bi-bell" aria-hidden="true"></i>
               {t("nav.alerts")}
+              <i className="bi bi-chevron-right" aria-hidden="true"></i>
             </Link>
             <div className="nav-menu-row">
               <LanguageSelect />

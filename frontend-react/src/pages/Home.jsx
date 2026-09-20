@@ -181,26 +181,26 @@ export default function Home() {
 
       <section className="section-tight">
         <div className="container">
-          <div className="grid grid-3">
-            <Link className="card card-tight" to="/market" style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ fontSize: "1.6rem", marginBottom: 8 }}>
+          <div className="grid grid-3 quick-cards">
+            <Link className="card card-tight quick-card" to="/market">
+              <div className="qc-icon">
                 <i className="bi bi-bar-chart-line" aria-hidden="true"></i>
               </div>
-              <h3 style={{ marginBottom: 4, fontSize: "1.05rem" }}>{t("home.c1t")}</h3>
+              <h3>{t("home.c1t")}</h3>
               <p className="muted text-sm mb-0">{t("home.c1d")}</p>
             </Link>
-            <Link className="card card-tight" to="/farmers" style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ fontSize: "1.6rem", marginBottom: 8 }}>
+            <Link className="card card-tight quick-card" to="/farmers">
+              <div className="qc-icon">
                 <i className="bi bi-people" aria-hidden="true"></i>
               </div>
-              <h3 style={{ marginBottom: 4, fontSize: "1.05rem" }}>{t("home.c3t")}</h3>
+              <h3>{t("home.c3t")}</h3>
               <p className="muted text-sm mb-0">{t("home.c3d")}</p>
             </Link>
-            <Link className="card card-tight" to="/market" style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ fontSize: "1.6rem", marginBottom: 8 }}>
+            <Link className="card card-tight quick-card" to="/market">
+              <div className="qc-icon">
                 <i className="bi bi-graph-up-arrow" aria-hidden="true"></i>
               </div>
-              <h3 style={{ marginBottom: 4, fontSize: "1.05rem" }}>{t("home.c4t")}</h3>
+              <h3>{t("home.c4t")}</h3>
               <p className="muted text-sm mb-0">{t("home.c4d")}</p>
             </Link>
           </div>
