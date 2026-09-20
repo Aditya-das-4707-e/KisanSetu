@@ -5,9 +5,7 @@ import Home from "./pages/Home.jsx";
 import Market from "./pages/Market.jsx";
 import CropDetail from "./pages/CropDetail.jsx";
 import Farmers from "./pages/Farmers.jsx";
-import Buyers from "./pages/Buyers.jsx";
 import DashboardFarmer from "./pages/DashboardFarmer.jsx";
-import DashboardBuyer from "./pages/DashboardBuyer.jsx";
 import Alerts from "./pages/Alerts.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -24,9 +22,7 @@ export default function App() {
             <Route path="market" element={<Market />} />
             <Route path="crop" element={<CropDetail />} />
             <Route path="farmers" element={<Farmers />} />
-            <Route path="buyers" element={<Buyers />} />
             <Route path="dashboard-farmer" element={<DashboardFarmer />} />
-            <Route path="dashboard-buyer" element={<DashboardBuyer />} />
             <Route path="alerts" element={<Alerts />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />

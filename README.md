@@ -33,18 +33,18 @@ Icons are Bootstrap Icons (SVG) — no emojis in the UI.
 | ----- | ------- |
 | `/` | Home: hero, crop search with autocomplete, location flow, quick actions, trending crops, how-it-works |
 | `/market` | All crops with price + trend; search, category filter, sort |
-| `/crop?crop=tomato` | Crop detail: quantity calculator (kg/quintal/tonne), price range, min/avg/max, Chart.js history (7d–1y), farmer/buyer tables with filters, price-alert modal |
-| `/farmers` / `/buyers` | Nearby listings with filters (crop, distance, price, verified); approximate localities only |
-| `/dashboard-farmer` / `/dashboard-buyer` | Role dashboards: crops/requirements (add–remove), local prices, alerts, shortcuts |
+| `/crop?crop=tomato` | Crop detail: quantity calculator (kg/quintal/tonne), price range, min/avg/max, Chart.js history (7d–1y), nearby-farmers table with filters, price-alert modal |
+| `/farmers` | Nearby farmer listings with filters (crop, distance, price, verified); approximate localities only |
+| `/dashboard-farmer` | Farmer dashboard: crops (add–remove), local prices, alerts, shortcuts |
 | `/alerts` | Price alerts news feed (demo items included; auto-deletes after 7 days); rules are created from any crop page |
-| `/login` / `/register` | Demo auth; register has Farmer/Buyer segmented toggle, dependent State→District→City, inline validation |
+| `/login` / `/register` | Demo auth; register has dependent State→District→City, inline validation |
 | `/profile` | Editable profile; role is read-only after verification |
 | `*` | Not-found page |
 
 ## Features
 
 - **Language selector in the navbar** — English / हिन्दी / বাংলা. Translates the whole UI including crop, category and unit names (`src/lib/i18n.jsx`); choice persists in `localStorage`
-- **Data layer** (`src/data/mockData.js` + `src/lib/api.js`) — 19 crops (with local names + search aliases, so `alu` finds Potato), per-crop price snapshots, generated 365-day history, farmer/buyer listings, sample alerts, **36 states/UTs, 787 districts, 4,100+ towns**. Any village not listed can be typed via the **"Other town / village"** fallback in every location selector. Every API function returns a Promise like `fetch()`; swap bodies for real Laravel endpoints later without touching callers. Alerts persist to `localStorage` (`kisansetu_alerts`); saved location under `kisansetu_location`
+- **Data layer** (`src/data/mockData.js` + `src/lib/api.js`) — 19 crops (with local names + search aliases, so `alu` finds Potato), per-crop price snapshots, generated 365-day history, farmer listings, sample alerts, **36 states/UTs, 787 districts, 4,100+ towns**. Any village not listed can be typed via the **"Other town / village"** fallback in every location selector. Every API function returns a Promise like `fetch()`; swap bodies for real Laravel endpoints later without touching callers. Alerts persist to `localStorage` (`kisansetu_alerts`); saved location under `kisansetu_location`
 
 ## Notes
 

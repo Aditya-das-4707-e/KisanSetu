@@ -143,20 +143,13 @@ export default function Home() {
 
       <section className="section-tight">
         <div className="container">
-          <div className="grid grid-4">
+          <div className="grid grid-3">
             <Link className="card card-tight" to="/market" style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ fontSize: "1.6rem", marginBottom: 8 }}>
                 <i className="bi bi-bar-chart-line" aria-hidden="true"></i>
               </div>
               <h3 style={{ marginBottom: 4, fontSize: "1.05rem" }}>{t("home.c1t")}</h3>
               <p className="muted text-sm mb-0">{t("home.c1d")}</p>
-            </Link>
-            <Link className="card card-tight" to="/buyers" style={{ textDecoration: "none", color: "inherit" }}>
-              <div style={{ fontSize: "1.6rem", marginBottom: 8 }}>
-                <i className="bi bi-briefcase" aria-hidden="true"></i>
-              </div>
-              <h3 style={{ marginBottom: 4, fontSize: "1.05rem" }}>{t("home.c2t")}</h3>
-              <p className="muted text-sm mb-0">{t("home.c2d")}</p>
             </Link>
             <Link className="card card-tight" to="/farmers" style={{ textDecoration: "none", color: "inherit" }}>
               <div style={{ fontSize: "1.6rem", marginBottom: 8 }}>

@@ -222,7 +222,7 @@ input:focus, select:focus, textarea:focus {
 .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--sp-4); }
 @media (max-width: 640px) { .row-2, .row-3 { grid-template-columns: 1fr; } }
 
-/* Segmented toggle (Farmer / Buyer) */
+/* Segmented toggle */
 .segmented {
   display: flex;
   border: 1px solid var(--border-strong);

@@ -83,14 +83,6 @@ const MOCK_FARMERS = [
   { name: "Hema Ghosh", crop: "mango", quantity: 400, unit: "kg", price: 42, distanceKm: 9, locality: "Fruit Market, Kolkata", verified: true },
 ];
 
-const MOCK_BUYERS = [
-  { name: "Kolkata Fresh Traders", crop: "tomato", requiredQuantity: 1000, unit: "kg", price: 23, distanceKm: 3, locality: "Near New Market, Kolkata", verified: true },
-  { name: "Green Basket Distributors", crop: "tomato", requiredQuantity: 500, unit: "kg", price: 25, distanceKm: 6, locality: "Howrah", verified: false },
-  { name: "Sealdah Wholesale Co.", crop: "potato", requiredQuantity: 1500, unit: "kg", price: 20, distanceKm: 4, locality: "Sealdah, Kolkata", verified: true },
-  { name: "Bengal Agro Exports", crop: "onion", requiredQuantity: 800, unit: "kg", price: 28, distanceKm: 8, locality: "Barasat", verified: true },
-  { name: "City Grain Merchants", crop: "wheat", requiredQuantity: 3000, unit: "kg", price: 24, distanceKm: 15, locality: "Asansol", verified: false },
-];
-
 let MOCK_ALERTS = [
   { id: 1, crop: "tomato", location: "Kolkata", condition: "above", threshold: 30, unit: "kg", active: true },
   { id: 2, crop: "potato", location: "Kolkata", condition: "below", threshold: 18, unit: "kg", active: true },
@@ -961,7 +953,6 @@ const LOCATIONS = {
 
 const DEMO_USER = {
   farmer: { name: "Ashok Mandal", role: "Farmer", locality: "Sonarpur, South 24 Parganas", state: "West Bengal" },
-  buyer: { name: "Green Basket Distributors", role: "Buyer/Distributor", locality: "Howrah", state: "West Bengal" },
 };
 
 const DEMO_LOCATION = { locality: "New Market", district: "Kolkata", state: "West Bengal" };
@@ -973,7 +964,6 @@ export {
   MOCK_PRICE_HISTORY,
   MOCK_ALERTS,
   MOCK_FARMERS,
-  MOCK_BUYERS,
   LOCATIONS,
   DEMO_USER,
   DEMO_LOCATION,

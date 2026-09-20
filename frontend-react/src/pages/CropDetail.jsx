@@ -4,7 +4,6 @@ import {
   getCropById,
   getCropPrice,
   getNearbyFarmers,
-  getNearbyBuyers,
   getPriceHistory,
   createAlert,
 } from "../lib/api.js";
@@ -38,11 +37,8 @@ export default function CropDetail() {
   const [history, setHistory] = useState([]);
 
   const [farmers, setFarmers] = useState([]);
-  const [buyers, setBuyers] = useState([]);
   const [fFarmerDist, setFFarmerDist] = useState("");
   const [fFarmerVerified, setFFarmerVerified] = useState("");
-  const [fBuyerDist, setFBuyerDist] = useState("");
-  const [fBuyerVerified, setFBuyerVerified] = useState("");
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertCondition, setAlertCondition] = useState("above");
@@ -81,17 +77,8 @@ export default function CropDetail() {
     setFarmers(data);
   }
 
-  async function loadBuyers() {
-    const data = await getNearbyBuyers(cropId, {
-      maxDistance: Number(fBuyerDist) || null,
-      verifiedOnly: fBuyerVerified === "1",
-    });
-    setBuyers(data);
-  }
-
   useEffect(() => {
     loadFarmers();
-    loadBuyers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cropId]);
 
@@ -307,7 +294,7 @@ export default function CropDetail() {
           </div>
         </div>
 
-        <div className="grid grid-2 mt-5" style={{ alignItems: "start" }}>
+        <div className="mt-5">
           <div className="card">
             <h3>{t("crop.sellers")}</h3>
             <div className="filters">
@@ -374,71 +361,6 @@ export default function CropDetail() {
             </div>
           </div>
 
-          <div className="card">
-            <h3>{t("crop.buyers")}</h3>
-            <div className="filters">
-              <div className="field">
-                <label htmlFor="fBuyerDist">{t("crop.maxDist")}</label>
-                <input
-                  id="fBuyerDist"
-                  type="number"
-                  placeholder={t("c.any")}
-                  value={fBuyerDist}
-                  onChange={(e) => setFBuyerDist(e.target.value)}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="fBuyerVerified">{t("crop.verOnly")}</label>
-                <select
-                  id="fBuyerVerified"
-                  value={fBuyerVerified}
-                  onChange={(e) => setFBuyerVerified(e.target.value)}
-                >
-                  <option value="">{t("c.no")}</option>
-                  <option value="1">{t("c.yes")}</option>
-                </select>
-              </div>
-              <button className="btn btn-outline btn-sm" onClick={loadBuyers}>
-                {t("c.apply")}
-              </button>
-            </div>
-            <div className="table-wrap">
-              <table className="data" id="buyersTable">
-                <thead>
-                  <tr>
-                    <th>{t("crop.thBuyer")}</th>
-                    <th>{t("crop.thDist")}</th>
-                    <th>{t("crop.thReqQty")}</th>
-                    <th>{t("crop.thPrice")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {buyers.length ? (
-                    buyers.map((b, i) => (
-                      <tr key={i}>
-                        <td>
-                          {b.name} {b.verified ? <VerifiedBadge /> : ""}
-                        </td>
-                        <td>{b.distanceKm} km</td>
-                        <td>
-                          {b.requiredQuantity} {unitName(b.unit)}
-                        </td>
-                        <td className="num">
-                          ₹{b.price}/{unitName(b.unit)}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="4" className="muted">
-                        {t("crop.noBuyers")}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
       </div>
 

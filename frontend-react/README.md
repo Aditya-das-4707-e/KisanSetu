@@ -21,8 +21,8 @@ Internet is needed for CDNs (Bootstrap Icons, Google Fonts), same as the static 
 | `/` | `index.html` — hero, search, trending, how-it-works |
 | `/market` | `market.html` — filters + sort + crop grid |
 | `/crop?crop=tomato` | `crop.html` — calculator, range, Chart.js history, listings, alert modal |
-| `/farmers`, `/buyers` | `farmers.html`, `buyers.html` |
-| `/dashboard-farmer`, `/dashboard-buyer` | role dashboards |
+| `/farmers` | farmer listings |
+| `/dashboard-farmer` | farmer dashboard |
 | `/alerts` | `alerts.html` |
 | `/login`, `/register` | demo auth |
 | `/profile` | editable profile |

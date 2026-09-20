@@ -17,7 +17,6 @@ function Field({ id, label, error, children }) {
 export default function Register() {
   const { t, cropName, cropLocal, validators } = useLang();
   const navigate = useNavigate();
-  const [role, setRole] = useState("farmer");
   const [crops, setCrops] = useState([]);
   const [locs, setLocs] = useState(null);
   const [regState, setRegState] = useState("");
@@ -35,7 +34,6 @@ export default function Register() {
     farmerQty: "",
     farmName: "",
     farmSize: "",
-    buyerQty: "",
   });
   const [farmerCrops, setFarmerCrops] = useState([]);
   const [errors, setErrors] = useState({});
@@ -78,7 +76,7 @@ export default function Register() {
     setErrors(errs);
     if (Object.keys(errs).length) return;
     // Demo only — real submission will POST to /api/auth/register/
-    navigate(role === "farmer" ? "/dashboard-farmer" : "/dashboard-buyer");
+    navigate("/dashboard-farmer");
   }
 
   return (
@@ -88,30 +86,7 @@ export default function Register() {
           <h2>{t("rg.title")}</h2>
           <p className="muted text-sm">{t("rg.sub")}</p>
 
-          <div className="field">
-            <label>{t("rg.iama")}</label>
-            <div className="segmented" id="roleToggle">
-              <button
-                type="button"
-                className={role === "farmer" ? "active" : ""}
-                data-role="farmer"
-                onClick={() => setRole("farmer")}
-              >
-                <i className="bi bi-person-badge me-1" aria-hidden="true"></i>
-                {t("rg.farmer")}
-              </button>
-              <button
-                type="button"
-                className={role === "buyer" ? "active" : ""}
-                data-role="buyer"
-                onClick={() => setRole("buyer")}
-              >
-                <i className="bi bi-bag-check me-1" aria-hidden="true"></i>
-                {t("rg.buyer")}
-              </button>
-            </div>
-            <p className="help">{t("rg.help")}</p>
-          </div>
+          <p className="help">{t("rg.help")}</p>
 
           <form id="registerForm" noValidate onSubmit={submit}>
             <div className="row-2">
@@ -271,8 +246,7 @@ export default function Register() {
               />
             </div>
 
-            {role === "farmer" && (
-              <div id="farmerFields">
+            <div id="farmerFields">
                 <h3 style={{ fontSize: "1rem", marginTop: 24 }}>{t("rg.farmAbout")}</h3>
                 <div className="row-2">
                   <div className="field">
@@ -333,31 +307,6 @@ export default function Register() {
                   </div>
                 </div>
               </div>
-            )}
-
-            {role === "buyer" && (
-              <div id="buyerFields">
-                <h3 style={{ fontSize: "1rem", marginTop: 24 }}>{t("rg.buyAbout")}</h3>
-                <div className="row-2">
-                  <div className="field">
-                    <label htmlFor="buyerCrops">{t("rg.buyerCrops")}</label>
-                    <select id="buyerCrops" multiple size="4">
-                      {cropOpts}
-                    </select>
-                  </div>
-                  <div className="field">
-                    <label htmlFor="buyerQty">{t("rg.buyerQty")}</label>
-                    <input
-                      id="buyerQty"
-                      type="number"
-                      placeholder={t("rg.buyerQtyPh")}
-                      value={values.buyerQty}
-                      onChange={(e) => set("buyerQty", e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div className="field mt-3">
               <label htmlFor="profilePhoto">

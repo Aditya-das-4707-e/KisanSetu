@@ -96,7 +96,6 @@ export function Navbar({ location, onOpenLocation }) {
           <div className="nav-links">
             <Link to="/market">{t("nav.market")}</Link>
             <Link to="/farmers">{t("nav.farmers")}</Link>
-            <Link to="/buyers">{t("nav.buyers")}</Link>
             <Link to="/alerts">{t("nav.alerts")}</Link>
           </div>
           <LanguageSelect />
@@ -124,9 +123,6 @@ export function Navbar({ location, onOpenLocation }) {
             </Link>
             <Link className="nav-menu-link" to="/farmers">
               {t("nav.farmers")}
-            </Link>
-            <Link className="nav-menu-link" to="/buyers">
-              {t("nav.buyers")}
             </Link>
             <Link className="nav-menu-link" to="/alerts">
               {t("nav.alerts")}
@@ -199,7 +195,6 @@ export function Footer() {
           <h4>{t("foot.explore")}</h4>
           <Link to="/market">{t("nav.market")}</Link>
           <Link to="/farmers">{t("nav.farmers")}</Link>
-          <Link to="/buyers">{t("nav.buyers")}</Link>
           <Link to="/alerts">{t("foot.priceAlerts")}</Link>
         </div>
         <div>

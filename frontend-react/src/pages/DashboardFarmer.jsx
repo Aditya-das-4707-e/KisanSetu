@@ -178,9 +178,6 @@ export default function DashboardFarmer() {
             <div className="card mt-5">
               <h3>{t("df.quick")}</h3>
               <div className="grid" style={{ gap: 10 }}>
-                <Link to="/buyers" className="btn btn-outline btn-block">
-                  {t("df.searchBuyers")}
-                </Link>
                 <Link to="/market" className="btn btn-outline btn-block">
                   {t("df.marketPrices")}
                 </Link>

@@ -6,7 +6,6 @@ import {
   MOCK_MARKET_PRICES,
   MOCK_PRICE_HISTORY,
   MOCK_FARMERS,
-  MOCK_BUYERS,
   MOCK_ALERTS,
   setMockAlerts,
   LOCATIONS,
@@ -70,14 +69,6 @@ export async function getNearbyFarmers(cropId, filters = {}) {
   if (filters.maxDistance) list = list.filter((f) => f.distanceKm <= filters.maxDistance);
   if (filters.verifiedOnly) list = list.filter((f) => f.verified);
   if (filters.maxPrice) list = list.filter((f) => f.price <= filters.maxPrice);
-  return list.sort((a, b) => a.distanceKm - b.distanceKm);
-}
-
-export async function getNearbyBuyers(cropId, filters = {}) {
-  await delay(150);
-  let list = MOCK_BUYERS.filter((b) => !cropId || b.crop === cropId);
-  if (filters.maxDistance) list = list.filter((b) => b.distanceKm <= filters.maxDistance);
-  if (filters.verifiedOnly) list = list.filter((b) => b.verified);
   return list.sort((a, b) => a.distanceKm - b.distanceKm);
 }
 
