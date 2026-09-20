@@ -270,6 +270,7 @@ export function LocationModal({ open, onClose, onSaved }) {
       }
       if (err && err.code === "DENIED") setGeoError(t("loc.deniedHelp"));
       else if (err && err.code === "NO_API") setGeoError(t("loc.noApi"));
+      else if (err && err.code === "UNAVAILABLE") setGeoError(t("loc.unavailable"));
       else if (err && err.code === "LOOKUP") setGeoError(t("loc.lookupFail"));
       else setGeoError(t("loc.failed"));
     } finally {

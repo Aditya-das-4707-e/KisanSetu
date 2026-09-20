@@ -129,27 +129,36 @@ export async function detectLocation() {
   // Real browser geolocation + free reverse-geocoding (BigDataCloud, no key).
   // Throws a coded error so callers can explain the exact cause:
   // NO_API (needs HTTPS/localhost), DENIED (permission blocked),
-  // UNAVAILABLE (GPS timed out), LOOKUP (place-name lookup failed).
-  const pos = await new Promise((resolve, reject) => {
-    if (!("geolocation" in navigator)) {
-      const e = new Error("geolocation-unavailable");
-      e.code = "NO_API";
-      reject(e);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      resolve,
-      (err) => {
-        const e = new Error("geolocation-failed");
-        e.code = err && err.code === 1 ? "DENIED" : "UNAVAILABLE";
+  // UNAVAILABLE (no GPS fix and no network location either),
+  // LOOKUP (GPS worked but place-name lookup failed — carries coords).
+  let pos = null;
+  try {
+    pos = await new Promise((resolve, reject) => {
+      if (!("geolocation" in navigator)) {
+        const e = new Error("geolocation-unavailable");
+        e.code = "NO_API";
         reject(e);
-      },
-      {
-        timeout: 10000,
-        maximumAge: 60000,
+        return;
       }
-    );
-  });
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        (err) => {
+          const e = new Error("geolocation-failed");
+          e.code = err && err.code === 1 ? "DENIED" : "UNAVAILABLE";
+          reject(e);
+        },
+        {
+          timeout: 10000,
+          maximumAge: 60000,
+        }
+      );
+    });
+  } catch (err) {
+    // Device can't get a GPS fix (typical Linux desktop): fall back to
+    // network-based (IP) location instead of giving up.
+    if (err && err.code === "UNAVAILABLE") return await ipFallbackLocation(err);
+    throw err;
+  }
   const { latitude, longitude } = pos.coords;
   // Place-name services, tried in order. If all fail, throw LOOKUP carrying
   // the raw coords so the caller can still save the real position.
@@ -205,6 +214,25 @@ async function reverseNominatim(lat, lng) {
   const state = a.state || "";
   if (!locality && !district) throw new Error("empty-result");
   return { locality: locality || district, district: district || locality, state };
+}
+
+/** City-level location from the network connection (no GPS needed). */
+async function ipFallbackLocation(originalError) {
+  try {
+    const data = await fetchJson("https://ipapi.co/json/");
+    const city = data.city || "";
+    if (!city) throw new Error("empty-result");
+    return {
+      locality: city,
+      district: city,
+      state: data.region || "",
+      latitude: data.latitude,
+      longitude: data.longitude,
+      approximate: true,
+    };
+  } catch {
+    throw originalError;
+  }
 }
 
 export async function getCurrentUser(role) {

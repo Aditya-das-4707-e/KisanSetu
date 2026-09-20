@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getLocations } from "../lib/api.js";
+import { getLocations, getSavedLocation } from "../lib/api.js";
 import { useLang } from "../lib/i18n.jsx";
 
 /**
@@ -21,11 +21,27 @@ export default function LocationSelects({
   useEffect(() => {
     getLocations().then((l) => {
       setLocs(l);
-      const firstState = Object.keys(l)[0];
-      const firstDistrict = Object.keys(l[firstState])[0];
-      setState(firstState);
-      setDistrict(firstDistrict);
-      setCity(l[firstState][firstDistrict][0]);
+      // Preselect the saved location (if any) instead of the first entries.
+      const saved = getSavedLocation();
+      const states = Object.keys(l);
+      const initState = states.includes(saved.state) ? saved.state : states[0];
+      const districts = Object.keys(l[initState]);
+      const initDistrict = districts.includes(saved.district)
+        ? saved.district
+        : districts[0];
+      const cities = l[initState][initDistrict];
+      let initCity = cities[0];
+      let initOther = "";
+      if (saved.locality && cities.includes(saved.locality)) {
+        initCity = saved.locality;
+      } else if (saved.locality && saved.locality !== initDistrict) {
+        initCity = "__other";
+        initOther = saved.locality;
+      }
+      setState(initState);
+      setDistrict(initDistrict);
+      setCity(initCity);
+      setOther(initOther);
     });
   }, []);
 
