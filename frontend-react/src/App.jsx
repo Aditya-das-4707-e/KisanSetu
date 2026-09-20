@@ -7,7 +7,6 @@ import CropDetail from "./pages/CropDetail.jsx";
 import Farmers from "./pages/Farmers.jsx";
 import DashboardFarmer from "./pages/DashboardFarmer.jsx";
 import Alerts from "./pages/Alerts.jsx";
-import Profile from "./pages/Profile.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
 export default function App() {
@@ -27,7 +26,6 @@ export default function App() {
             <Route path="login" element={<Navigate to="/" replace />} />
             <Route path="register" element={<Navigate to="/" replace />} />
             <Route path="profile" element={<Navigate to="/" replace />} />
-            <Route path="profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
