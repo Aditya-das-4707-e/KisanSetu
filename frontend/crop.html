@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crop Detail — KisanSetu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="css/theme.css" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="navbar navbar-expand-lg kisansetu-nav"><div class="container">
+<a class="navbar-brand fw-bold" href="index.html"><i class="bi bi-shop me-1" aria-hidden="true"></i>KisanSetu</a>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" data-nav="market" href="market.html">Market</a></li>
+<li class="nav-item"><a class="nav-link" href="farmers.html">Farmers</a></li>
+<li class="nav-item"><a class="nav-link" href="buyers.html">Buyers</a></li>
+</ul>
+<span class="location-pill"><span id="location-label"><i class="bi bi-geo-alt" aria-hidden="true"></i> Set location</span><button type="button" onclick="LocationSvc.showManual()">Change</button></span>
+<ul class="navbar-nav ms-2" id="nav-auth"></ul>
+</div></div></nav>
+<main class="container py-4" id="main">
+<div id="head"></div>
+<div class="card p-3 mb-3">
+<h2 class="h5">How much? (quantity calculator)</h2>
+<div class="row g-2 align-items-end">
+<div class="col-6 col-md-3"><label class="form-label" for="qty">Quantity</label><input id="qty" type="number" value="500" min="0" step="0.01" class="form-control"></div>
+<div class="col-6 col-md-3"><label class="form-label" for="unit">Unit</label><select id="unit" class="form-select"><option>kg</option><option>quintal</option><option>tonne</option></select></div>
+<div class="col-12 col-md-6"><p class="mb-0 fw-bold" id="calc" aria-live="polite"></p></div>
+</div>
+</div>
+<div class="card p-3 mb-3">
+<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between">
+<h2 class="h5 mb-0">Price history <span class="badge badge-demo">Demo data</span></h2>
+<div class="btn-group" role="group" aria-label="Time range">
+<button class="btn btn-sm btn-outline-success" data-range="7d">7d</button>
+<button class="btn btn-sm btn-outline-success active" data-range="30d">30d</button>
+<button class="btn btn-sm btn-outline-success" data-range="3m">3m</button>
+<button class="btn btn-sm btn-outline-success" data-range="6m">6m</button>
+<button class="btn btn-sm btn-outline-success" data-range="1y">1y</button>
+</div>
+</div>
+<canvas id="hist" height="120" aria-label="Price history chart"></canvas>
+</div>
+<div class="row">
+<div class="col-lg-6 mb-3">
+<h2 class="h5">Nearby Sellers (Farmers)</h2>
+<div class="row g-2 mb-2">
+<div class="col-6"><label class="form-label" for="f-dist">Max distance (km)</label><input id="f-dist" type="number" class="form-control" placeholder="Any"></div>
+<div class="col-6"><label class="form-label" for="f-ver">Verified</label><select id="f-ver" class="form-select"><option value="">All</option><option value="1">Verified only</option></select></div>
+</div>
+<div class="table-wrap"><table class="table mb-0"><thead><tr><th scope="col">Name</th><th scope="col">Distance</th><th scope="col">Qty</th><th scope="col">Price</th></tr></thead><tbody id="sellers"></tbody></table></div>
+</div>
+<div class="col-lg-6 mb-3">
+<h2 class="h5">Nearby Buyers</h2>
+<div class="table-wrap"><table class="table mb-0"><thead><tr><th scope="col">Name</th><th scope="col">Distance</th><th scope="col">Need</th><th scope="col">Offer</th></tr></thead><tbody id="buyers"></tbody></table></div>
+<button class="btn btn-kisansetu mt-3" data-bs-toggle="modal" data-bs-target="#alert-modal"><i class="bi bi-bell me-1" aria-hidden="true"></i>Create Price Alert for this crop</button>
+</div>
+</div>
+</main>
+<div class="modal fade" id="alert-modal" tabindex="-1" aria-label="Create price alert"><div class="modal-dialog"><div class="modal-content">
+<div class="modal-header"><h3 class="h5">Create price alert</h3><button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+<div class="modal-body">
+<div class="mb-2"><label class="form-label" for="a-cond">When price is…</label><select id="a-cond" class="form-select"><option value="above">Above ₹</option><option value="below">Below ₹</option></select></div>
+<div class="mb-2"><label class="form-label" for="a-val">Price (₹/kg)</label><input id="a-val" type="number" step="0.01" class="form-control"></div>
+</div>
+<div class="modal-footer"><button class="btn btn-kisansetu" id="a-save">Save alert</button></div>
+</div></div></div>
+<div class="modal fade" id="location-modal" tabindex="-1" aria-label="Choose location"><div class="modal-dialog"><div class="modal-content">
+<div class="modal-header"><h3 class="h5">Choose location</h3><button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+<div class="modal-body">
+<div class="mb-2"><label class="form-label" for="loc-state">State</label><select id="loc-state" class="form-select"></select></div>
+<div class="mb-2"><label class="form-label" for="loc-dist">District</label><select id="loc-dist" class="form-select"></select></div>
+<div class="mb-2"><label class="form-label" for="loc-city">City</label><select id="loc-city" class="form-select"></select></div>
+</div><div class="modal-footer"><button class="btn btn-kisansetu" id="loc-save">Save</button></div>
+</div></div></div>
+<footer class="kisansetu-footer"><div class="container"><span class="demo-note">Showing sample/demo data</span></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/mock-data.js"></script>
+<script src="js/api.js"></script>
+<script src="js/location.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/main.js"></script>
+<script>
+App.paintNav("market"); LocationSvc.detect(); LocationSvc.wireModal("loc-state","loc-dist","loc-city","loc-save");
+let crop = App.q("crop") || "Tomato";
+let snap = null;
+async function load(range = "30d") {
+  const found = (await Api.searchCrops(crop))[0];
+  const name = found ? found.name : crop;
+  crop = name;
+  snap = await Api.getCropPrice(name);
+  if (!snap) { document.getElementById("head").innerHTML = `<div class="alert alert-warning">No demo data for ${crop}.</div>`; return; }
+  document.title = `${name} price — KisanSetu`;
+  const local = (MockDB.crops.find(c => c.name === name) || {}).local || "";
+  document.getElementById("head").innerHTML = `
+    <h1 class="h3">${name} <small class="price-meta">/ ${local}</small> <span class="badge badge-demo">Demo</span></h1>
+    <div class="card p-3 mb-3">
+      <div class="price-meta">Crop · 1. Current price · 2. Range · 3. Location · 4. Updated</div>
+      <div class="price-big">₹${snap.current_per_kg}/kg</div>
+      <p class="mb-1">Estimated local price: <strong>₹${snap.estimated_range[0]}–₹${snap.estimated_range[1]}/kg</strong><br>
+      <small>Estimated from recent local market listings and available market-price data.</small></p>
+      <p class="mb-1">Min ₹${snap.lowest} · Avg ₹${snap.average} · Max ₹${snap.highest} · Median ₹${snap.median}</p>
+      <p class="mb-1">${App.trendBadge(snap.trend)}</p>
+      <p class="price-meta mb-0">Last updated: ${App.timeAgo(snap.recorded_at)} · ${snap.market}, ${snap.district}, ${snap.state}</p>
+    </div>`;
+  const hist = await Api.getPriceHistory(name, range);
+  Charts.renderPriceChart("hist", hist);
+  updateCalc();
+  paintLists();
+}
+function updateCalc() {
+  if (!snap) return;
+  const qty = document.getElementById("qty").value || 0;
+  const unit = document.getElementById("unit").value;
+  const kg = Api.toKg(qty, unit);
+  const fmt = (r) => "₹" + Math.round(kg * r).toLocaleString("en-IN");
+  document.getElementById("calc").textContent = `${qty} ${unit} = ${kg} kg × ₹${snap.current_per_kg}/kg = ${fmt(snap.current_per_kg)} (range ${fmt(snap.estimated_range[0])}–${fmt(snap.estimated_range[1])})`;
+}
+async function paintLists() {
+  const f = {
+    maxDistance: document.getElementById("f-dist").value || undefined,
+    verifiedOnly: document.getElementById("f-ver").value === "1"
+  };
+  const s = await Api.getNearbyFarmers(crop, f);
+  const b = await Api.getNearbyBuyers(crop, {});
+  document.getElementById("sellers").innerHTML = s.length ? s.map(r =>
+    `<tr><td>${r.name} ${r.verified ? `<span class="badge bg-success">Verified</span>` : ""}<br><small class="price-meta">${r.locality}</small></td><td>${r.distance_km} km</td><td>${r.quantity_kg} kg</td><td>₹${r.price_per_kg}/kg</td></tr>`).join("")
+    : `<tr><td colspan="4" class="price-meta">No sellers in demo data.</td></tr>`;
+  document.getElementById("buyers").innerHTML = b.length ? b.map(r =>
+    `<tr><td>${r.name} ${r.verified ? `<span class="badge bg-success">Verified</span>` : ""}<br><small class="price-meta">${r.locality}</small></td><td>${r.distance_km} km</td><td>${r.quantity_kg} kg</td><td>₹${r.price_per_kg}/kg</td></tr>`).join("")
+    : `<tr><td colspan="4" class="price-meta">No buyers in demo data.</td></tr>`;
+}
+document.getElementById("qty").addEventListener("input", updateCalc);
+document.getElementById("unit").addEventListener("change", updateCalc);
+document.getElementById("f-dist").addEventListener("input", paintLists);
+document.getElementById("f-ver").addEventListener("change", paintLists);
+document.querySelectorAll("[data-range]").forEach(btn => btn.addEventListener("click", () => {
+  document.querySelectorAll("[data-range]").forEach(x => x.classList.remove("active"));
+  btn.classList.add("active");
+  load(btn.dataset.range);
+}));
+document.getElementById("a-save").onclick = async () => {
+  await Api.createAlert({ crop, condition: document.getElementById("a-cond").value, threshold: +document.getElementById("a-val").value, location: (LocationSvc.get() || {}).city || "", channel: ["in-app"] });
+  bootstrap.Modal.getInstance(document.getElementById("alert-modal")).hide();
+  alert("Demo alert saved. See alerts.html");
+};
+load();
+</script>
+</body>
+</html>

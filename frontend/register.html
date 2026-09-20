@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register — KisanSetu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="css/theme.css" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<nav class="navbar navbar-expand-lg kisansetu-nav"><div class="container">
+<a class="navbar-brand fw-bold" href="index.html"><i class="bi bi-shop me-1" aria-hidden="true"></i>KisanSetu</a>
+<div class="collapse navbar-collapse"><ul class="navbar-nav ms-auto" id="nav-auth"></ul></div>
+</div></nav>
+<main class="container py-4" id="main">
+<div class="row justify-content-center"><div class="col-md-8"><div class="card p-4">
+<h1 class="h3">Create your account</h1>
+<p class="price-meta">Demo only — saved in this browser.</p>
+<label class="form-label">I am a…</label>
+<div class="role-toggle mb-1" role="group" aria-label="Choose role">
+<button type="button" id="role-farmer" aria-pressed="true"><i class="bi bi-person-badge me-1" aria-hidden="true"></i>Farmer</button>
+<button type="button" id="role-buyer" aria-pressed="false"><i class="bi bi-bag-check me-1" aria-hidden="true"></i>Buyer / Distributor</button>
+</div>
+<p class="price-meta">Farmers can only list crops they personally grow.</p>
+<form id="form" novalidate>
+<div class="row">
+<div class="col-md-6 mb-2"><label class="form-label" for="f-name">Full name</label><input id="f-name" class="form-control" required></div>
+<div class="col-md-6 mb-2"><label class="form-label" for="f-email">Email</label><input id="f-email" type="email" class="form-control" required></div>
+<div class="col-md-6 mb-2"><label class="form-label" for="f-phone">Phone (10-digit Indian mobile)</label><input id="f-phone" class="form-control" inputmode="numeric" required></div>
+<div class="col-md-3 mb-2"><label class="form-label" for="f-age">Age</label><input id="f-age" type="number" min="18" class="form-control" required></div>
+<div class="col-md-3 mb-2"><label class="form-label" for="f-photo">Photo (optional)</label><input id="f-photo" type="file" accept="image/*" class="form-control"></div>
+<div class="col-12 mb-2"><img id="photo-prev" alt="Profile photo preview" style="max-width:120px;border-radius:12px;display:none"></div>
+<div class="col-md-6 mb-2"><label class="form-label" for="f-pw">Password (min 8)</label><input id="f-pw" type="password" class="form-control" required></div>
+<div class="col-md-6 mb-2"><label class="form-label" for="f-pw2">Confirm password</label><input id="f-pw2" type="password" class="form-control" required></div>
+<div class="col-md-4 mb-2"><label class="form-label" for="f-state">State</label><select id="f-state" class="form-select" required></select></div>
+<div class="col-md-4 mb-2"><label class="form-label" for="f-dist">District</label><select id="f-dist" class="form-select" required></select></div>
+<div class="col-md-4 mb-2"><label class="form-label" for="f-city">City / Village</label><select id="f-city" class="form-select" required></select></div>
+<div class="col-12 mb-2"><label class="form-label" for="f-addr">Address</label><textarea id="f-addr" class="form-control" required></textarea></div>
+<div class="col-md-6 mb-2"><label class="form-label" for="f-crops">Crops <span id="crops-label">you produce</span> (choose one or more)</label><select id="f-crops" class="form-select" multiple size="5"></select></div>
+<div class="col-md-6 mb-2"><label class="form-label" for="f-qty" id="qty-label">Approximate production quantity (kg)</label><input id="f-qty" type="number" min="1" class="form-control"></div>
+<div class="col-md-6 mb-2"><label class="form-label" for="f-farm">Farm name (optional)</label><input id="f-farm" class="form-control"></div>
+<div class="col-md-6 mb-2"><label class="form-label" for="f-size">Farm size in acres (optional)</label><input id="f-size" type="number" step="0.01" class="form-control"></div>
+</div>
+<button class="btn btn-kisansetu w-100 mt-2" type="submit">Create account</button>
+</form>
+</div></div></div>
+</main>
+<footer class="kisansetu-footer"><div class="container"><span class="demo-note">Showing sample/demo data</span></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/mock-data.js"></script>
+<script src="js/api.js"></script>
+<script src="js/validation.js"></script>
+<script src="js/main.js"></script>
+<script>
+App.paintNav("register");
+let role = "farmer";
+const rf = document.getElementById("role-farmer"), rb = document.getElementById("role-buyer");
+function setRole(r) {
+  role = r;
+  rf.setAttribute("aria-pressed", String(r === "farmer"));
+  rb.setAttribute("aria-pressed", String(r === "buyer"));
+  document.getElementById("crops-label").textContent = r === "farmer" ? "you produce" : "you purchase";
+  document.getElementById("qty-label").textContent = r === "farmer" ? "Approximate production quantity (kg)" : "Approximate required quantity (kg)";
+}
+rf.onclick = () => setRole("farmer");
+rb.onclick = () => setRole("buyer");
+
+// location dropdowns
+const states = MockDB.locations.states;
+const s = document.getElementById("f-state"), d = document.getElementById("f-dist"), c = document.getElementById("f-city");
+s.innerHTML = `<option value="">Select state</option>` + Object.keys(states).map(k => `<option>${k}</option>`).join("");
+s.onchange = () => {
+  d.innerHTML = `<option value="">Select district</option>` + Object.keys(states[s.value]?.districts || {}).map(k => `<option>${k}</option>`).join("");
+  c.innerHTML = `<option value="">Select city</option>`;
+};
+d.onchange = () => {
+  const cities = states[s.value]?.districts[d.value] || [];
+  c.innerHTML = `<option value="">Select city</option>` + cities.map(k => `<option>${k}</option>`).join("");
+};
+document.getElementById("f-crops").innerHTML = MockDB.crops.map(x => `<option>${x.name}</option>`).join("");
+document.getElementById("f-photo").addEventListener("change", (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const img = document.getElementById("photo-prev");
+  img.src = URL.createObjectURL(f); img.style.display = "block";
+});
+
+document.getElementById("form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  let ok = true;
+  ok = Validate.required("f-name") && ok;
+  const em = document.getElementById("f-email").value;
+  ok = Validate.field("f-email", Validate.email(em), "Enter a valid email") && ok;
+  ok = Validate.field("f-phone", Validate.phone(document.getElementById("f-phone").value), "Enter a valid 10-digit mobile number") && ok;
+  ok = Validate.field("f-age", (+document.getElementById("f-age").value || 0) >= 18, "You must be 18 or older") && ok;
+  ok = Validate.field("f-pw", (document.getElementById("f-pw").value || "").length >= 8, "Password must be at least 8 characters") && ok;
+  ok = Validate.field("f-pw2", document.getElementById("f-pw").value === document.getElementById("f-pw2").value, "Passwords do not match") && ok;
+  ok = Validate.required("f-state", "Choose your state") && ok;
+  ok = Validate.required("f-dist", "Choose your district") && ok;
+  ok = Validate.required("f-addr") && ok;
+  if (!ok) return;
+  localStorage.setItem("kisansetu_user", JSON.stringify({ name: document.getElementById("f-name").value, email: em, role }));
+  location.href = role === "buyer" ? "dashboard-buyer.html" : "dashboard-farmer.html";
+});
+</script>
+</body>
+</html>

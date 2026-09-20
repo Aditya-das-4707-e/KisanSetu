@@ -1,0 +1,11 @@
+# Static frontend — no build, no dependencies.
+# Ignore OS junk, editor configs, and local-only files.
+
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
