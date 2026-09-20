@@ -83,8 +83,8 @@ function marketCacheSet(name, state, live, value) {
  *
  * Three-way result contract (callers depend on it):
  *  - object    → the API affirmatively returned a price (use it, badge live).
- *  - null      → the API affirmatively has no entry (404 / empty list).
- *                Callers hide just that crop — no fake price is shown.
+ *  - null      → the API affirmatively has no entry (404 with a JSON body /
+ *                empty list). Callers hide just that crop — no fake price.
  *  - undefined → transport failure (offline, cold start, HTML fallback page,
  *                5xx). Callers fall back to demo MOCK data so pages never go
  *                blank during an outage.
@@ -102,10 +102,21 @@ async function fetchBackendPrice(name, { state = "", live = true } = {}) {
   try {
     const res = await fetch(`${MARKET_API_BASE}/products/?${params.toString()}`);
     if (!res.ok) {
-      // 404 = "no such product" (affirmative miss, hide the crop).
-      // Anything else (502/5xx from the proxy, etc.) = outage → fallback.
-      if (res.status === 404) item = null;
-      else transportError = true;
+      // 404 needs a closer look: the upstream API reports "no such product"
+      // as 404 + JSON (`{"detail": …}`) — that is an affirmative miss, hide
+      // the crop. But a 404 with a non-JSON body means the proxy route
+      // itself is missing (Vercel's HTML 404 page) — that is an outage, so
+      // fall back to demo data instead of blanking the page.
+      // Any other status (502/5xx from the proxy, etc.) = outage → fallback.
+      if (res.status === 404) {
+        const text = await res.text();
+        try {
+          JSON.parse(text);
+          item = null;
+        } catch {
+          transportError = true;
+        }
+      } else transportError = true;
     } else if (!(res.headers.get("content-type") || "").includes("application/json")) {
       // Wrong content type (e.g. the SPA's index.html served for an
       // unproxied /api/* path) — treat as outage, not as "no data".
