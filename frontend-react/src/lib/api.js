@@ -78,8 +78,10 @@ function marketCacheSet(name, state, live, value) {
 }
 
 /**
- * GET /products/?name=… (+ optional state/live) and return the first
- * ProductPrice object.
+ * GET /products?name=… (+ optional state/live) and return the first
+ * ProductPrice object. NOTE: no trailing slash before the `?` — Vercel's
+ * edge router does not match `/api/market/products/` (trailing slash) to
+ * the `api/market/[...path]` function and returns its own 404.
  *
  * Three-way result contract (callers depend on it):
  *  - object    → the API affirmatively returned a price (use it, badge live).
@@ -100,7 +102,7 @@ async function fetchBackendPrice(name, { state = "", live = true } = {}) {
   let item = null;
   let transportError = false;
   try {
-    const res = await fetch(`${MARKET_API_BASE}/products/?${params.toString()}`);
+    const res = await fetch(`${MARKET_API_BASE}/products?${params.toString()}`);
     if (!res.ok) {
       // 404 needs a closer look: the upstream API reports "no such product"
       // as 404 + JSON (`{"detail": …}`) — that is an affirmative miss, hide
