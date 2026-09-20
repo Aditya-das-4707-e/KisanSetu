@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { searchCrops, getSavedLocation, saveLocation, detectLocation } from "../lib/api.js";
 import { useLang, LANGS } from "../lib/i18n.jsx";
+import { Logo } from "./bits.jsx";
 import LocationSelects from "./LocationSelects.jsx";
 
 export function LanguageSelect() {
@@ -69,7 +70,7 @@ export function Navbar({ location, onOpenLocation }) {
       <nav className="nav">
         <div className="nav-inner">
           <Link className="brand" to="/">
-            <span className="mark">K</span> KisanSetu
+            <Logo /> KisanSetu
           </Link>
           <div className="nav-search">
             <input
@@ -184,7 +185,7 @@ export function Footer() {
       <div className="footer-inner">
         <div>
           <Link className="brand" to="/" style={{ marginBottom: 8 }}>
-            <span className="mark">K</span> KisanSetu
+            <Logo /> KisanSetu
           </Link>
           <p className="muted text-sm" style={{ maxWidth: 260 }}>
             {t("foot.tag")}
@@ -196,6 +197,10 @@ export function Footer() {
           <Link to="/farmers">{t("nav.farmers")}</Link>
           <Link to="/alerts">{t("foot.priceAlerts")}</Link>
           <Link to="/dashboard-farmer">{t("nav.dashboard")}</Link>
+        </div>
+        <div>
+          <h4>{t("foot.account")}</h4>
+          <Link to="/profile">{t("foot.profile")}</Link>
         </div>
         <div>
           <h4>{t("foot.about")}</h4>

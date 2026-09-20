@@ -108,8 +108,7 @@
 @media (max-width: 900px) {
   .nav-inner { flex-wrap: wrap; gap: 12px; padding: var(--sp-3) var(--sp-4); }
   .nav-inner > .nav-links,
-  .nav-inner > .nav-loc,
-  .nav-inner > #navAuthBtn { display: none; }
+  .nav-inner > .nav-loc { display: none; }
   .nav-toggle { display: inline-flex; }
   .nav-search { display: block; order: 10; flex: 1 1 100%; max-width: none; }
   .nav-menu {
@@ -433,15 +432,6 @@ table.data tr:last-child td { border-bottom: none; }
   font-family: var(--font-mono); font-weight: 700;
   display: grid; place-items: center; margin-bottom: var(--sp-3);
 }
-
-/* ---------- Auth pages ---------- */
-.auth-wrap {
-  min-height: calc(100vh - 200px);
-  display: grid; place-items: center;
-  padding: var(--sp-7) 0;
-}
-.auth-card { max-width: 460px; width: 100%; }
-.auth-card.wide { max-width: 620px; }
 
 /* ---------- Dashboard ---------- */
 .dash-head {

@@ -93,9 +93,6 @@ Icons are Bootstrap Icons (SVG) — no emojis in the UI.
 | `/market` | All crops with **live** price + trend; search, state filter, sort |
 | `/crop?crop=tomato` | Crop detail: quantity calculator (kg/quintal/tonne), price range, min/avg/max, Chart.js history (7d–1y), nearby-farmers table with filters, price-alert modal |
 | `/farmers` | Nearby farmer listings with filters (crop, distance, price, verified); approximate localities only |
-| `/dashboard-farmer` | Farmer dashboard: crops (add–remove), local prices, alerts, shortcuts — open, no login |
-| `/alerts` | Price alerts: your rules + triggered news feed (auto-deletes after 7 days); rules are created from any crop page |
-| `*` | Not-found page |
 
 ## Features
 

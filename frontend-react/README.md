@@ -20,18 +20,6 @@ npm run preview # serve the production build locally
 Internet is needed for CDNs (Bootstrap Icons 1.11.3, Google Fonts) **and** for
 the live price API (see below).
 
-## Routes
-
-| Route | Page |
-| ----- | ---- |
-| `/` | Home — hero, crop search with autocomplete, location flow, quick actions, trending crops, how-it-works |
-| `/market` | Market grid — **live** prices, search + state filter + sort |
-| `/crop?crop=tomato` | Crop detail — quantity calculator (kg/quintal/tonne), min/avg/max range, Chart.js history (7d–1y), nearby sellers, price-alert modal |
-| `/farmers` | Nearby farmer listings with filters (crop, distance, price, verified) |
-| `/dashboard-farmer` | Farmer dashboard — crops (add–remove), live local prices, alerts, shortcuts |
-| `/alerts` | Price alerts — your rules + triggered news feed (news auto-deletes after 7 days) |
-| `*` | 404 page (`/login`, `/register`, `/profile` redirect to `/` — auth was removed) |
-
 ## Data: what is live vs local
 
 **Live (FastAPI backend):**
