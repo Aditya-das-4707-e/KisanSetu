@@ -151,41 +151,60 @@ export async function detectLocation() {
     );
   });
   const { latitude, longitude } = pos.coords;
+  // Place-name services, tried in order. If all fail, throw LOOKUP carrying
+  // the raw coords so the caller can still save the real position.
+  const services = [reverseBigDataCloud, reverseNominatim];
+  for (const svc of services) {
+    try {
+      const loc = await svc(latitude, longitude);
+      if (loc) return { ...loc, latitude, longitude };
+    } catch {
+      /* try next service */
+    }
+  }
+  const e = new Error("reverse-geocode-failed");
+  e.code = "LOOKUP";
+  e.coords = { latitude, longitude };
+  throw e;
+}
+
+async function fetchJson(url, ms = 8000) {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 8000);
+  const timer = setTimeout(() => ctrl.abort(), ms);
   try {
-    const res = await fetch(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
-      { signal: ctrl.signal }
-    );
-    if (!res.ok) {
-      const e = new Error("reverse-geocode-failed");
-      e.code = "LOOKUP";
-      throw e;
-    }
-    const data = await res.json();
-    const city = data.city || data.locality || "";
-    const locality = data.locality || data.city || "";
-    if (!city && !locality) {
-      const e = new Error("reverse-geocode-empty");
-      e.code = "LOOKUP";
-      throw e;
-    }
-    return {
-      locality,
-      district: city,
-      state: data.principalSubdivision || DEMO_LOCATION.state,
-    };
-  } catch (err) {
-    if (!err.code) {
-      const e = new Error("reverse-geocode-failed");
-      e.code = "LOOKUP";
-      throw e;
-    }
-    throw err;
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) throw new Error("bad-response");
+    return await res.json();
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function reverseBigDataCloud(lat, lng) {
+  const data = await fetchJson(
+    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+  );
+  const city = data.city || data.locality || "";
+  const locality = data.locality || data.city || "";
+  if (!city && !locality) throw new Error("empty-result");
+  return {
+    locality,
+    district: city,
+    state: data.principalSubdivision || "",
+  };
+}
+
+async function reverseNominatim(lat, lng) {
+  const data = await fetchJson(
+    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en&zoom=14`
+  );
+  const a = data.address || {};
+  const locality =
+    a.suburb || a.neighbourhood || a.village || a.hamlet || a.town || a.city || "";
+  const district = a.county || a.state_district || a.city_district || a.city || locality;
+  const state = a.state || "";
+  if (!locality && !district) throw new Error("empty-result");
+  return { locality: locality || district, district: district || locality, state };
 }
 
 export async function getCurrentUser(role) {

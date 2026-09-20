@@ -255,6 +255,19 @@ export function LocationModal({ open, onClose, onSaved }) {
       onSaved(loc);
       onClose();
     } catch (err) {
+      if (err && err.code === "LOOKUP" && err.coords) {
+        // GPS worked but place-name lookup failed: still save the real position.
+        const { latitude, longitude } = err.coords;
+        const loc = {
+          locality: t("loc.me"),
+          district: `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`,
+          state: "",
+        };
+        saveLocation(loc);
+        onSaved(loc);
+        onClose();
+        return;
+      }
       if (err && err.code === "DENIED") setGeoError(t("loc.deniedHelp"));
       else if (err && err.code === "NO_API") setGeoError(t("loc.noApi"));
       else if (err && err.code === "LOOKUP") setGeoError(t("loc.lookupFail"));

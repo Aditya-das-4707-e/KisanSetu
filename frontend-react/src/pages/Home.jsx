@@ -47,8 +47,19 @@ export default function Home() {
           const loc = await detectLocation();
           saveLocation(loc);
           setLocBox({ kind: "saved", loc });
-        } catch {
-          setLocBox({ kind: "denied" });
+        } catch (err) {
+          if (err && err.code === "LOOKUP" && err.coords) {
+            const { latitude, longitude } = err.coords;
+            const loc = {
+              locality: t("loc.me"),
+              district: `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`,
+              state: "",
+            };
+            saveLocation(loc);
+            setLocBox({ kind: "saved", loc });
+          } else {
+            setLocBox({ kind: "denied" });
+          }
         }
       },
       () => setLocBox({ kind: "denied" }),
