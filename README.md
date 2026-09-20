@@ -37,7 +37,6 @@ Icons are Bootstrap Icons (SVG) — no emojis in the UI.
 | `/farmers` | Nearby farmer listings with filters (crop, distance, price, verified); approximate localities only |
 | `/dashboard-farmer` | Farmer dashboard: crops (add–remove), local prices, alerts, shortcuts |
 | `/alerts` | Price alerts news feed (demo items included; auto-deletes after 7 days); rules are created from any crop page |
-| `/login` / `/register` | Demo auth; register has dependent State→District→City, inline validation |
 | `/profile` | Editable profile; role is read-only after verification |
 | `*` | Not-found page |
 

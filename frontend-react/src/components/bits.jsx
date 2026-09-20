@@ -43,3 +43,28 @@ export function CropCard({ crop, price, extra }) {
     </Link>
   );
 }
+
+/** KisanSetu sprout mark — forest green badge, paper + mustard seedling. */
+export function Logo({ size = 30 }) {
+  return (
+    <span
+      className="mark"
+      aria-hidden="true"
+      style={{ background: "none", padding: 0, width: size, height: size }}
+    >
+      <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#1F5C3F" />
+        <path d="M9 25.5 H23" stroke="#D9A441" strokeWidth="2.2" strokeLinecap="round" />
+        <path d="M16 25 V13.5" stroke="#F6F4EC" strokeWidth="2.2" strokeLinecap="round" />
+        <path
+          d="M15.5 19.5 C12 19.5 9.2 17.2 8.2 12.8 C12.5 12.8 15 15.2 15.5 19.5 Z"
+          fill="#F6F4EC"
+        />
+        <path
+          d="M16.5 16.8 C20 16.8 22.8 14.5 23.8 10.2 C19.5 10.2 17 12.5 16.5 16.8 Z"
+          fill="#D9A441"
+        />
+      </svg>
+    </span>
+  );
+}
