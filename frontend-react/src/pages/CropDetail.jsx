@@ -25,6 +25,7 @@ export default function CropDetail() {
   const { t, cropName, cropLocal, categoryName, unitName } = useLang();
   const [params] = useSearchParams();
   const cropId = params.get("crop") || "tomato";
+  const stateParam = params.get("state") || "";
 
   const [crop, setCrop] = useState(null);
   const [price, setPrice] = useState(null);
@@ -48,7 +49,7 @@ export default function CropDetail() {
     document.title = "Crop — KisanSetu";
     let cancelled = false;
     async function load() {
-      const [c, p] = await Promise.all([getCropById(cropId), getCropPrice(cropId)]);
+      const [c, p] = await Promise.all([getCropById(cropId), getCropPrice(cropId, stateParam)]);
       if (cancelled) return;
       if (!c || !p) {
         setNotFound(true);
@@ -63,11 +64,11 @@ export default function CropDetail() {
     return () => {
       cancelled = true;
     };
-  }, [cropId]);
+  }, [cropId, stateParam]);
 
   useEffect(() => {
-    getPriceHistory(cropId, days).then(setHistory);
-  }, [cropId, days]);
+    getPriceHistory(cropId, days, stateParam).then(setHistory);
+  }, [cropId, days, stateParam]);
 
   async function loadFarmers() {
     const data = await getNearbyFarmers(cropId, {

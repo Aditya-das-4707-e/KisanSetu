@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "./lib/i18n.jsx";
 import Layout from "./components/Layout.jsx";
 import Home from "./pages/Home.jsx";
@@ -22,6 +22,11 @@ export default function App() {
             <Route path="farmers" element={<Farmers />} />
             <Route path="dashboard-farmer" element={<DashboardFarmer />} />
             <Route path="alerts" element={<Alerts />} />
+            {/* Auth removed — the app is fully open, no login required.
+                Keep old bookmarks working by sending them to home. */}
+            <Route path="login" element={<Navigate to="/" replace />} />
+            <Route path="register" element={<Navigate to="/" replace />} />
+            <Route path="profile" element={<Navigate to="/" replace />} />
             <Route path="profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Route>
