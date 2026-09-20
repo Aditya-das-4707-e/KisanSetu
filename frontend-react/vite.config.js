@@ -3,7 +3,7 @@ import { defineConfig } from 'vite'
 
 // API base for the live Indian Market Price (FastAPI) service. Local/dev traffic
 // is proxied through this same-origin route (see `server.proxy`) so we never hit
-// the Render API's CORS restrictions. Production (Vercel) uses `api/market.js`.
+// the Render API's CORS restrictions. Production (Vercel) uses `api/market/[...path].js`.
 const MARKET_API_TARGET = 'https://farmer-api-ooi2.onrender.com'
 
 // https://vite.dev/config/

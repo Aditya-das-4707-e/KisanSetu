@@ -33,11 +33,13 @@ function delay(ms = 120) {
    VITE_MARKET_API_BASE env var when you need to point elsewhere (e.g.
    http://127.0.0.1:8000 to hit a local backend).
 
-   Every lookup is wrapped so that if the API is unreachable (offline,
-   render cold-start, proxy down, 404 for a non-mandi crop) we transparently
-   fall back to the demo MOCK data — the app never breaks and no page
-   needs to know which source answered. Flip USE_LIVE_MARKET_API to
-   false to force pure demo mode.
+    Every lookup is wrapped so that if the API is unreachable (offline,
+    Render cold-start, proxy down, non-JSON fallback page) we transparently
+    fall back to the demo MOCK data — the app never breaks and no page
+    needs to know which source answered. Only an affirmative miss from the
+    API itself (404 / empty list for a non-mandi crop) hides that crop
+    rather than showing a fake price. Flip USE_LIVE_MARKET_API to
+    false to force pure demo mode.
    ===================================================================== */
 const MARKET_API_BASE =
   (typeof import.meta !== "undefined" &&
@@ -77,7 +79,16 @@ function marketCacheSet(name, state, live, value) {
 
 /**
  * GET /products/?name=… (+ optional state/live) and return the first
- * ProductPrice object, or null when nothing matches / call fails.
+ * ProductPrice object.
+ *
+ * Three-way result contract (callers depend on it):
+ *  - object    → the API affirmatively returned a price (use it, badge live).
+ *  - null      → the API affirmatively has no entry (404 / empty list).
+ *                Callers hide just that crop — no fake price is shown.
+ *  - undefined → transport failure (offline, cold start, HTML fallback page,
+ *                5xx). Callers fall back to demo MOCK data so pages never go
+ *                blank during an outage.
+ * Transport failures are NOT cached, so the next lookup retries the API.
  */
 async function fetchBackendPrice(name, { state = "", live = true } = {}) {
   if (!USE_LIVE_MARKET_API) return null;
@@ -87,15 +98,26 @@ async function fetchBackendPrice(name, { state = "", live = true } = {}) {
   if (state) params.set("state", state);
   if (!live) params.set("live", "false");
   let item = null;
+  let transportError = false;
   try {
     const res = await fetch(`${MARKET_API_BASE}/products/?${params.toString()}`);
-    if (res.ok) {
+    if (!res.ok) {
+      // 404 = "no such product" (affirmative miss, hide the crop).
+      // Anything else (502/5xx from the proxy, etc.) = outage → fallback.
+      if (res.status === 404) item = null;
+      else transportError = true;
+    } else if (!(res.headers.get("content-type") || "").includes("application/json")) {
+      // Wrong content type (e.g. the SPA's index.html served for an
+      // unproxied /api/* path) — treat as outage, not as "no data".
+      transportError = true;
+    } else {
       const data = await res.json();
       item = Array.isArray(data) && data.length ? data[0] : null;
     }
   } catch {
-    item = null; // offline / cold-start / CORS — caller falls back to mock
+    transportError = true; // offline / cold-start / CORS / bad JSON
   }
+  if (transportError) return undefined;
   marketCacheSet(name, state, live, item);
   return item;
 }
@@ -168,8 +190,14 @@ export async function getCropPrice(cropId, state) {
     // location's state when no state was provided at all (undefined).
     const st = state !== undefined ? state : currentState();
     const live = await fetchBackendPriceBest(crop.name, st);
-    // No hardcoded fallback: if the live API has no entry, report it as missing
-    // rather than showing a fake demo price.
+    if (live === undefined) {
+      // Outage (not an affirmative miss): show demo data, badged as such,
+      // so the page never goes blank. Affirmative misses (null) stay hidden
+      // rather than showing a fake price.
+      await delay();
+      const mock = MOCK_MARKET_PRICES[cropId];
+      return mock ? { cropId, ...mock, live: false } : null;
+    }
     if (live) return { cropId, ...liveToPrice(live, MOCK_MARKET_PRICES[cropId]) };
     return null;
   }
@@ -185,7 +213,11 @@ export async function getAllPrices(state) {
       MOCK_CROPS.map(async (c) => {
         const mock = MOCK_MARKET_PRICES[c.id];
         const live = await fetchBackendPriceBest(c.name, st);
-        return live ? { crop: c, price: liveToPrice(live, mock) } : null;
+        if (live) return { crop: c, price: liveToPrice(live, mock) };
+        // Affirmative miss (null) → hide the crop. Outage (undefined) →
+        // demo fallback so the grid never goes blank.
+        if (live === undefined && mock) return { crop: c, price: { ...mock, live: false } };
+        return null;
       })
     );
     return rows.filter((r) => r && r.price);
